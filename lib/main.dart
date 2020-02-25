@@ -33,27 +33,73 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var taskCtrl = new TextEditingController();
+
+  void add() {
+    setState(() {
+      if (taskCtrl.text.isEmpty) return;
+
+      widget.items.add(
+        Item(
+          title: taskCtrl.text,
+          done: false,
+        ),
+      );
+      taskCtrl.clear();
+    });
+  }
+
+  void remove(int index) {
+    setState(() {
+      widget.items.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Todo List"),
+        title: TextFormField(
+          controller: taskCtrl,
+          keyboardType: TextInputType.text,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+          decoration: InputDecoration(
+            labelText: "Nova Tarefa",
+            labelStyle: TextStyle(color: Colors.white),
+          ),
+        ),
       ),
       body: ListView.builder(
         itemCount: widget.items.length,
         itemBuilder: (BuildContext ctx, int index) {
           final item = widget.items[index];
-          return CheckboxListTile(
-            title: Text(item.title),
+          return Dismissible(
             key: Key(item.title),
-            value: item.done,
-            onChanged: (value) {
-              setState(() {
-                item.done = value;
-              });
+            child: CheckboxListTile(
+              title: Text(item.title),
+              value: item.done,
+              onChanged: (value) {
+                setState(() {
+                  item.done = value;
+                });
+              },
+            ),
+            background: Container(
+              color: Colors.red.withOpacity(0.5),
+            ),
+            onDismissed: (direction) {
+              remove(index);
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: add,
+        child: Icon(Icons.add),
+        backgroundColor: Colors.pink,
       ),
     );
   }
